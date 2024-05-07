@@ -45,11 +45,9 @@ const getOTP = async (req, res) => {
         // Find the most recent OTP for the email
         const { email, otp } = req.body;
 
-        const response = await OTP.find({email}).sort({ createdAt: -1 }).limit(1);
+        const response = await OTP.findOne({ email }).sort({ createdAt: -1 }).limit(1);
 
-        console.log(response);
-
-        if (!response.otp !== otp.toString()) {
+        if (response['otp'] != otp) {
             return res.status(400).json({
                 success: false,
                 message: 'The OTP is not valid',
