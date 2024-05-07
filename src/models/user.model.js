@@ -13,15 +13,10 @@ const UserSchema = Schema({
         unique: true
     },
 
-    profile_pic: {
-        type: String
-    },
-
-    role: {
+    password: {
         type: String,
-        required: true,
-        enum: ['ADMIN', 'USER'],
-        default: 'USER'
+        trim: true,
+        required: [true, 'Password is required'],
     },
 
     is_active: {

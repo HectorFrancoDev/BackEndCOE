@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const { dbConnection } = require('../config/database')
+const { header } = require('express-validator')
 
 class Server {
 
@@ -14,6 +15,7 @@ class Server {
         this.paths = {
             auth: `${this.api}/auth`,
             users: `${this.api}/users`,
+            verification: `${this.api}/verification`,
         };
 
         // Middlewares
@@ -28,11 +30,11 @@ class Server {
 
     middlewares() {
 
-        // CORS
-        const corsOptions = {
-            origin: ['*']
-        }
-        this.app.use(cors(corsOptions));
+        this.app.use(cors({
+            origin: '*',
+            methods: ['GET', 'POST', 'PUT', 'DELETE'],
+            allowedHeaders: ['Content-Type', 'Authorization', 'x-token']
+        }));
 
         this.app.use(express.json())
 
@@ -40,11 +42,8 @@ class Server {
     }
 
     async connectDB() {
-
         await dbConnection()
-
     }
-
 
     /**
      * Routes
@@ -52,6 +51,8 @@ class Server {
     routes() {
 
         this.app.use(this.paths.users, require('../routes/user.routes'))
+        this.app.use(this.paths.auth, require('../routes/auth.routes'))
+        this.app.use(this.paths.verification, require('../routes/verification.routes'))
     }
 
 
@@ -64,6 +65,5 @@ class Server {
         });
     }
 }
-
 
 module.exports = Server;

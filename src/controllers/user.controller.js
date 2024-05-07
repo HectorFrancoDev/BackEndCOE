@@ -1,15 +1,21 @@
 const { request, response } = require('express')
-const UserModel = require('../models/user.model')
+const bcryptjs = require('bcryptjs');
+const User = require('../models/user.model')
 
 /**
  * GET: Get all users
  * @param {Request} req Request methods
  * @param {Response} res Response method
  */
-const getAllUsers = (req = request, res = response) => {
-    res.status(200).send({
-        'message': 'Get All Users'
-    })
+const getAllUsers = async (req = request, res = response) => {
+
+    const [total, users] = await Promise.all([
+
+        User.countDocuments(),
+        User.find()
+    ])
+
+    res.status(200).json({ total, users });
 }
 
 /**
@@ -17,16 +23,13 @@ const getAllUsers = (req = request, res = response) => {
  * @param {Request} req Request methods
  * @param {Response} res Response method
  */
-const getUserById = (req = request, res = response) => {
+const getUserById = async (req = request, res = response) => {
 
-    const { id } = req.params
-    const query = req.query
+    const { id } = req.params;
 
-    res.status(200).send({
-        'message': 'Get User by ID',
-        id,
-        query
-    })
+    const user = await User.findById(id)
+
+    res.status(200).json({ user });
 }
 
 /**
@@ -36,42 +39,29 @@ const getUserById = (req = request, res = response) => {
  */
 const createNewUser = async (req = request, res = response) => {
     const {
-        areaCode,
-        name = '',
+        name = 'Juanes',
         email,
-        password = process.env.TEMP_PASSWORD,
-        roleCode,
-        img = '',
-        google = true } = req.body;
+        password
+    } = req.body;
 
     const verifyUser = await User.findOne({ email });
-
 
     if (verifyUser)
         return res.status(400).json({ error: 'El usuario ya se encuentra registrado' });
 
-
-    const role = await Role.findOne({ code: roleCode });
-    if (!role)
-        return res.status(400).json({ error: 'Ingrese un código de role válido' });
-
-
-    const area = await Area.findOne({ code: areaCode });
-    if (!area)
-        return res.status(400).json({ error: 'Ingrese un código de área válido' });
-
-
-    const user = new User({ area, name, email, password, role, img, google });
+    const user = new User({ name, email, password });
 
     // Encriptar la contraseña
     const salt = bcryptjs.genSaltSync();
     user.password = bcryptjs.hashSync(password, salt);
 
-
     // Guardar en BD
     await user.save();
 
-    res.json({ user });
+    res.status(201).json({
+        mesage: 'User create',
+        user
+    });
 }
 
 /**
