@@ -7,7 +7,7 @@ const { verificacionOtp, verificacionFrase, verificacionExterno } = require('../
 
 const router = Router();
 
-router.get('/otp', [
+router.post('/otp', [
 ], verificacionOtp);
 
 

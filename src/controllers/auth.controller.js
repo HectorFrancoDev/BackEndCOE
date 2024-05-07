@@ -2,6 +2,7 @@ const { response, request } = require('express');
 const bcryptjs = require('bcryptjs')
 
 const User = require('../models/user.model');
+const OTP = require('../models/otp.model')
 
 const { generateJWT } = require('../helpers/generate-jwt');
 
@@ -18,7 +19,6 @@ const login = async (req, res = response) => {
 
     try {
         // Verificar si el email existe
-
         let user = await User.findOne({ email })
 
         if (!user) {
@@ -31,6 +31,15 @@ const login = async (req, res = response) => {
         if (!user.is_active) {
             return res.status(400).json({
                 error: 'El usuario no se encuentra activo en el sistema!'
+            });
+        }
+
+        // Find the most recent OTP for the email
+        const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
+        if (response.length === 0 || otp !== response[0].otp) {
+            return res.status(400).json({
+                success: false,
+                message: 'The OTP is not valid',
             });
         }
 
