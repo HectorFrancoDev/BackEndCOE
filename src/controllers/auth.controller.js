@@ -34,15 +34,6 @@ const login = async (req, res = response) => {
             });
         }
 
-        // Find the most recent OTP for the email
-        const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
-        if (response.length === 0 || otp !== response[0].otp) {
-            return res.status(400).json({
-                success: false,
-                message: 'The OTP is not valid',
-            });
-        }
-
         // Verificar la contraseña
         const validPassword = bcryptjs.compareSync(password, user.password);
         if (!validPassword) // Contraseña inválida
