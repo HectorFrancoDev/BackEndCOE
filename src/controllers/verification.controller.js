@@ -6,7 +6,6 @@ const User = require('../models/user.model');
 const verificacionOtp = async (req, res) => {
 
     try {
-        console.log(req.body);
         const { email } = req.body;
 
         let otp = otpGenerator.generate(6, {
