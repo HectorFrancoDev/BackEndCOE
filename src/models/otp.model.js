@@ -7,6 +7,10 @@ const otpSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  was_used: {
+    type: Boolean,
+    default: false
+  },
   otp: {
     type: String,
     required: true,
@@ -22,9 +26,9 @@ async function sendVerificationEmail(email, otp) {
   try {
     const mailResponse = await mailSender(
       email,
-      "Verification Email",
-      `<h1>Please confirm your OTP</h1>
-       <p>Here is your OTP code: ${otp}</p>`
+      "Verificación OTP",
+      `<h1>Por favor confirma el OTP enviado</h1>
+       <p>Código OTP: ${otp}</p>`
     );
     console.log("Email sent successfully: ", mailResponse);
   } catch (error) {

@@ -41,9 +41,9 @@ const verificacionOtp = async (req, res) => {
 const getOTP = async (req, res) => {
 
     try {
-        console.log(req.body);
         // Find the most recent OTP for the email
         const { email, otp } = req.body;
+        const dateRequest = new Date().getTime()
 
         const response = await OTP.findOne({ email }).sort({ createdAt: -1 }).limit(1);
 
@@ -53,6 +53,23 @@ const getOTP = async (req, res) => {
                 message: 'The OTP is not valid',
             });
         }
+
+        if (response['was_used']) {
+            return res.status(400).json({
+                success: false,
+                message: 'The OTP is not valid',
+            });
+        }
+
+        if (getDifferenceTime(response['createdAt'].getTime(), dateRequest) > 3) {
+            return res.status(400).json({
+                success: false,
+                message: 'The OTP has expired',
+            });
+        }
+
+        response['was_used'] = true
+        await response.save()
 
         return res.status(200).json({
             success: true,
@@ -76,6 +93,14 @@ const verificacionFrase = async (req, res = response) => {
 
     console.log('Generar Frase');
 };
+
+const getDifferenceTime = (milisegundosFecha1 = 324, milisegundosFecha2 = 123) => {
+
+    const diferenciaMilisegundos = milisegundosFecha2 - milisegundosFecha1;
+    console.log(diferenciaMilisegundos / 60000);
+    return diferenciaMilisegundos / 60000;
+
+}
 
 module.exports = {
     verificacionOtp,

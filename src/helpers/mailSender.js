@@ -7,12 +7,12 @@ const mailSender = async (email, title, body) => {
       host: process.env.MAIL_HOST,
       auth: {
         user: process.env.MAIL_USER,
-        pass: "Ledger#Contact07" 
+        pass: process.env.MAIL_PASS
       }
     });
-    // Send emails to users
+
     let info = await transporter.sendMail({
-      from: process.env.MAIL_USER,
+      from: process.env.MAIL_USER + ' Contact HectorFrancoDev',
       to: email,
       subject: title,
       html: body,
